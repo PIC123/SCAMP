@@ -48,5 +48,17 @@ namespace DocumentDbRepositories.Implementation
 
             // exception handling, etc... 
         }
+
+        public async Task<bool> CheckNoUsers()
+        {
+            if (!(await docdb.IsInitialized))
+                return false;
+
+            var query = from u in docdb.Client.CreateDocumentQuery<ScampUser>(docdb.Collection.SelfLink)
+                        where u.Type == "user"
+                        select u.Id;
+            var result = await query.AsDocumentQuery().ToListAsync();
+            return result.Count < 1;
+        }
     }
 }
